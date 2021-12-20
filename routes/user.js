@@ -1,5 +1,7 @@
 const { updateAddresses } = require('../controllers/update/updateAddresses')
-const { createUserController, getUserByIdController, changePasswordController, getUsersController, changeByIdUser, getUserController } = require('../controllers/user')
+const { createUserController, getUserByIdController, changePasswordController,
+     getUsersController, changeDeclarePermissionByIdUser, getUserController,
+      removeUserController } = require('../controllers/user')
 const auth = require('../middleware/auth')
 const checkDeclarablePermission = require('../middleware/checkDeclarablePermission')
 const checkRoleToAddUser = require('../middleware/checkRoleToAddUser')
@@ -14,10 +16,11 @@ router.post('/',[auth,checkRoleToAddUser,checkDeclarablePermission],createUserCo
 //change password of logged in user
 router.put('/change-password',[auth],changePasswordController)
 //change password of user by id(type:ObjectId)
-router.put('/:id/change-password',[auth,checkRoleToAddUser,checkDeclarablePermission],changePasswordController)
+router.put('/change-password',[auth,checkRoleToAddUser,checkDeclarablePermission],changePasswordController)
 //change declare permission
-router.put('/change-declare-permission',[auth,checkDeclarablePermission],changeByIdUser)
+router.put('/change-declare-permission',[auth,checkDeclarablePermission],changeDeclarePermissionByIdUser)
 //get all user that logged in user manage
 router.get('/',[auth],getUserController)
-// router.delete('/:id',[auth,checkRoleToAddUser,checkDeclarablePermission],removeUserController)
+//delete user that logged in user manage
+router.delete('/:id',[auth,checkRoleToAddUser,checkDeclarablePermission],removeUserController)
 module.exports = router

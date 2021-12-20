@@ -85,7 +85,7 @@ const formatAddress = (address)=>{
             address.idCommuneRef.name+','+
             address.idDistrictRef.name+','+
             address.idCityRef.name+','+
-            address.idCommuneRef.name
+            address.idCountryRef.name
 
 }
 

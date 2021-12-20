@@ -3,6 +3,7 @@ const {User} = require("../models/user/user")
 const mongoose= require('mongoose')
 const { Address } = require("../models/address/address")
 const e = require("express")
+const { response } = require("express")
 const ObjectId = mongoose.Types.ObjectId
 const getUsersController = async function(req,res,next) {
 
@@ -50,16 +51,14 @@ const getUserByIdController = async function(req,res,next) {
     if(!loggedInUser) return res.status(400).send('invalid id')
     let user
     if(req.decodedToken.role =='A1') 
-        user = await User.find({idRoleRef:loggedInUser.idRoleRef.idRoleManageRef,_id:req.params.id})
+        user = await User.findOne({idRoleRef:loggedInUser.idRoleRef.idRoleManageRef,_id:req.params.id})
+                            .populate('idManagedScopeRef')
     else
         user = await User.findOne({
                                 _id:new ObjectId(req.params.id),
                                 addedBy: req.decodedToken._id,
                                 idRoleRef: loggedInUser.idRoleRef.idRoleManageRef,
-                                idManagedScopeRef: loggedInUser.idManagedScopeRef
-
-                            })
-                            .populate('idManagedScopeRef')
+                            }).populate('idManagedScopeRef')
                         
     if(!user) 
         return res.status(404).send('not found any user managed by you match with id')
@@ -182,15 +181,15 @@ const createUserController = async function(req,res,next) {
 //có thể change fields nào cũng được(them truong muon update) miễn là user quản lí account{_id}
 const changePasswordController = async function(req,res,next) {
 
-    if(req.params.id){
-        if(!mongoose.isValidObjectId(req.params.id)) 
+    if(req.query.id){
+        if(!mongoose.isValidObjectId(req.query.id)) 
             return res.status(400).send('invalid id  4')
-        const managedUser = await User.findOne({_id:req.params.id}).populate({path:'idRoleRef',model:'Role'})
+        const managedUser = await User.findOne({_id:req.query.id}).populate({path:'idRoleRef',model:'Role'})
         if(!managedUser) return res.status(404).send('not found')
         //nếu user la A1,account{id} la A2 hoặc user là người thêm  account{_id} 
         if(managedUser.addedBy.equals(req.decodedToken._id)||
             (managedUser.idRoleRef.name == 'A2'&& req.decodedToken.role =='A1')){
-            const result = await User.findOneAndUpdate({_id:new ObjectId(req.params.id)},{password:req.body.newPassword},{new:true})
+            const result = await User.findOneAndUpdate({_id:new ObjectId(req.query.id)},{password:req.body.newPassword},{new:true})
             if(!result) return res.status(404).send("The user with the given ID was not found")
             return res.status(200).send("done")
         }
@@ -205,24 +204,18 @@ const changePasswordController = async function(req,res,next) {
 
 }
 
-const changeByIdUser  = async function(req,res,next) {
+const changeDeclarePermissionByIdUser  = async function(req,res,next) {
     if(!mongoose.isValidObjectId(req.query.id)) 
-        return res.status(400).send('invalid id')
+        return res.status(400).send('invalid id 1')
     const account = await User.findOne({_id:new ObjectId(req.query.id)}).populate({path:'idRoleRef',model:'Role'})
-    if(!account) return res.status(400).send('invalid id')
+    if(!account) return res.status(400).send('invalid id 2')
     if((account.addedBy.equals(req.decodedToken._id)) 
     || (req.decodedToken.role == 'A1'&& account.idRoleRef.name== 'A2')) {
-        if(req.body.areaName && !req.body.declarable) {
-            return User.findOneAndUpdate({_id:req.query.id}).select('_id idMangedScopeRef')
-                        .then(result=> Scope.findOneAndUpdate({_id:result.idManagedScopeRef},{name:req.body.areaName}))
-                        .then(result=> res.status(200).send('success'))
-                        .catch(err=> res.status(400).send(err))
-        }
         //neu khoa quyen khai bao thi khoa tat cac node do user quan ly va cac node cap duoi nua
 
         if(req.body.declarable == false)
             return User.updateMany({username:{$regex:'^'+ account.username}},{declarable:false})
-                    .then(data=>res.status(200).send("success"))
+                    .then(data=>res.status(200).send(data))
                     .catch(err=>res.status(500).send(err))
         else //neu mo quyen khai bao chi mo cho nguoi do
             return User.findOneAndUpdate({_id:req.query.id},{declarable:true},{new: true,select:"-password -_id "})
@@ -234,12 +227,27 @@ const changeByIdUser  = async function(req,res,next) {
 
 }
 
+const removeUserController= async (req,res,next)=>{
+    if(!req.params.id||!mongoose.isValidObjectId(req.params.id))
+        return res.status(400).send('invalid id')
+    const account= await User.findOne({_id:req.params.id}).populate('idManagedScopeRef')
+        if(!account) return res.status(400).send("invalid id")
+    if(account.addedBy.equals(req.decodedToken._id)||
+     account.idManagedScopeRef.belongToIdScopeRef.equals(req.decodedToken.idManagedScopeRef))
+        return Promise.all([User.findOneAndDelete({_id:account._id}),
+                            Scope.findOneAndDelete({_id:account.idManagedScopeRef})])
+                        .then(result=> res.status(200).send("success"))
+                        .catch(err=> res.status(500).send(err))
+    
+}
+
 
 module.exports ={
     createUserController,
     getUserByIdController,
     changePasswordController,
     getUsersController,
-    changeByIdUser,
-    getUserController
+    changeDeclarePermissionByIdUser,
+    getUserController,
+    removeUserController
 }

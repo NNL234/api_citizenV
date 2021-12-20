@@ -45,9 +45,9 @@ exports.changeHumanInfoWithId = async function(req,res,next){
     if(!isValidObjectId(req.params.id)||!isValidObjectId(req.query.idFamily))
         return res.status(400).send('invalid id')
     const process = Promise.all([User.findOne({_id:req.decodedToken._id,idFamilyRef:req.query.idFamily}),
-                                                Human.findOne({_id:req.params.id,idFamilyRef:req.query.idFamily})
-                                                .populate('idTemporaryResidenceAddressRef')
-                                                .select('-__v')    
+                                Human.findOne({_id:req.params.id,idFamilyRef:req.query.idFamily})
+                                    .populate('idTemporaryResidenceAddressRef')
+                                    .select('-__v')    
                                 ])
     const [user,human] = await process
     if(!user || !human)return res.send('invalid id')
@@ -154,7 +154,7 @@ exports.getInfoHumen = async(req,res,next)=>{
                         })
                             return res.status(200).send(data)
                     })
-                    .catch(err=> console.log(err))                    
+                    .catch(err=> res.status(500).send(err))                    
 
 }
 
@@ -182,14 +182,12 @@ exports.getInfoHumansWithIdArea =async  function(req,res,next) {
     if(!isValidObjectId(Object.values(ref)[1])) 
         return res.status(400).send('invalid id')
     const user= req.decodedToken
-    console.log(user,ref)
     const idAddresses = (await Address.find({$and:[ref,
                                         {$or:[{idCountryRef :user.idManagedScopeRef},{idCityRef:user.idManagedScopeRef},
                                         {idDistrictRef:user.idManagedScopeRef},{idCommuneRef:user.idManagedScopeRef},
                                         {idVillageRef:user.idManagedScopeRef}]}]})
                                     .select('_id'))
                                 .map(address=>address._id)
-                                console.log(idAddresses)
     if(!idAddresses.length) return res.status(404).send('not found')
     const addressFields ='idCountryRef idCityRef idDistrictRef idCommuneRef idVillageRef'
         return Human.find({idTemporaryResidenceAddressRef:{$in:idAddresses}})

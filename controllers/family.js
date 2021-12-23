@@ -139,14 +139,30 @@ exports.getFamiliesWithIdArea = async (req,res,next)=>{
                                     .select('_id'))
                                 .map(address=>address._id)
     if(!idAddresses.length) return res.status(400).send('not found')
+    const families =[]
+    const addressFields ='idCountryRef idCityRef idDistrictRef idCommuneRef idVillageRef'
     return Family.find({idAddressRef:{$in:idAddresses}})
                 .populate({path:'idAddressRef',model:'Address',
-                            populate:{path:'idVillageRef',model:'Scope'}
+                            populate:{path:addressFields,model:'Scope'}
                         })                       
-                .select('idAddressRef householdCode headOfHouseholdName')
+                .select('idAddressRef householdCode headOfHouseholdName members')
                 .limit(10)
-                .then(result=>result.length? res.status(200).send(result):res.status(404).send('not found'))
-                .catch(err=> res.status(500).send(err))
+                .then(result=>{
+
+                    if(!result.length) return res.status(404).send('not found')
+                    const data = result.map(family=>{
+                        return {
+                            headOfHouseholdName:family.headOfHouseholdName,
+                            householdCode:family.householdCode,
+                            address: formatAddress(family.idAddressRef),
+                            numberOfMembers: family.members.length
+                        }
+                    })
+                    return res.status(200).send(data)
+                    
+                })
+               
+                .catch(err=> res.send(err))
 }
 
 

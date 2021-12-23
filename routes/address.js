@@ -46,7 +46,7 @@ router.get(['/district',
                 else if(typeOfScope=='village') belongToScopeRef = req.query.idCommuneRef
                 else return res.status(400).send('invalid id')
                 const areas = await Scope.find({typeOfScope:typeOfScope,
-                                                belongToScopeRef:belongToScopeRef}).select("_id name");
+                                                belongToIdScopeRef:belongToScopeRef}).select("_id name");
                 if (!areas) return res.status(400).send().send("Error");
                 return res.status(200).send(areas);
             })
@@ -80,7 +80,7 @@ router.get('/:id',getAddressById)
 //get address(country, city,district,commune,village)
 router.get('/',getFullAddressOfVillageById)
 
-router.put('/changeInfomationOfArea',[auth,checkRoleToAddUser],changeInfomationOfAreaWithId)
+router.put('/change-info-area',[auth,checkRoleToAddUser],changeInfomationOfAreaWithId)
 
 
 module.exports =router;

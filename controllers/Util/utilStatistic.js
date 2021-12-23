@@ -149,17 +149,44 @@ const ObjectId = require('mongoose').Types.ObjectId
     ])
 
 
-exports.formatData = function(data,KEYSLIST) {
+exports.formatData = function(data,KEYSLIST,SECONDKEYLIST) {
         const formattedData =[]
-        console.log(data)
+        const keyData = data.map(unit=> Object.values(unit)[0])
         KEYSLIST.forEach(key=>{
-            if(!Object.keys(data[0])[0].includes(key)){
-                const unit ={}
-                unit[`${Object.keys(data[0])[0]}`] = key
-                unit.count =0
-                formattedData.push(unit)
+            const unit ={}
+            unit[`${Object.keys(data[0])[0]}`] = key
+            if(!keyData.includes(key)){
+                if(SECONDKEYLIST){
+                    SECONDKEYLIST.forEach((secondKey,index)=>{
+                        // console.log(Object.keys(data[0])[1],secondKey)
+                        unit.count =0
+                        unit[`${Object.keys(data[0])[1]}`] =secondKey
+                        formattedData.push(unit)
+                    })
+                }
+                else {
+                    unit.count = 0
+                    formattedData.push(unit)
+                }
             }
-            else formattedData.push(data[key])
+            else {
+                if(SECONDKEYLIST){
+                    SECONDKEYLIST.forEach((secondKey,index)=>{
+                        if(!keyData.includes(secondKey)) {
+                            unit.count =0
+                            unit[`${Object.keys(data[0])[1]}`] =secondKey
+                            formattedData.push(unit)
+                        }
+                    })
+                }
+                else {
+                    unit.count = 0
+                    formattedData.push(unit)
+                }
+
+            }
         })
+        formattedData.push(...data)
+
         return formattedData
     }

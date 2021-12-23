@@ -66,7 +66,7 @@ const getStatisticsInfoScopeById = async function(req,res,next) {
                         populationData:utilStatistics.formatData(results[0],GENDERS),
                         employmentAndUnemploymentData:results[1],
                         ReligionData:utilStatistics.formatData(results[2],RELIGIONS),
-                        RangeAgeAndGenderData:utilStatistics.formatData(results[3],RANGEAGES),
+                        RangeAgeAndGenderData:utilStatistics.formatData(results[3],GENDERS,RANGEAGES),
                         educationalData:utilStatistics.formatData(results[4],EDUCATIONALLEVELS)
                     }) 
                 })

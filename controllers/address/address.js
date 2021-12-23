@@ -52,12 +52,11 @@ const  getAddressById =async (req,res,next)=> {
  const changeInfomationOfAreaWithId = (req,res,next)=>{
      if(!req.query.id||!mongoose.isValidObjectId(req.query.id)) 
         return res.status(400).send('invalid id')
-    return Scope.findOneAndUpdate({_id:req.query.id,belongToIdScopeRef:req.decodedToken.idManagedScopeRef},
-                                    {name:req.body.name})
+     return Scope.findOneAndUpdate({_id:req.query.id,belongToIdScopeRef:req.decodedToken.idManagedScopeRef},
+                                    {name:req.body.areaName})
                     .then(result=> result?res.status(200).send('success'):res.status(404).send('not found'))
                     .catch(err=> res.status(500).send(err))
 
-    return res.status(400).send('invalid input')
  }
 
 module.exports={

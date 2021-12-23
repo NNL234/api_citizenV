@@ -160,7 +160,7 @@ const createUserController = async function(req,res,next) {
         .then(result=>{
             const newUser = new User({
                 addedBy:req.decodedToken._id,
-                name:req.body.name,
+                name:"cán bộ "+req.body.scopeName,
                 idManagedScopeRef :result._id,
                 idRoleRef :loggedInUser.idRoleRef.idRoleManageRef,
                 username: req.body.username,
@@ -213,7 +213,7 @@ const changeDeclarePermissionByIdUser  = async function(req,res,next) {
     || (req.decodedToken.role == 'A1'&& account.idRoleRef.name== 'A2')) {
         //neu khoa quyen khai bao thi khoa tat cac node do user quan ly va cac node cap duoi nua
 
-        if(req.body.declarable == false)
+        if(Boolean(req.body.declarable) == false)
             return User.updateMany({username:{$regex:'^'+ account.username}},{declarable:false})
                     .then(data=>res.status(200).send(data))
                     .catch(err=>res.status(500).send(err))

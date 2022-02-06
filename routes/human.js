@@ -1,9 +1,18 @@
-const { getInfoHumanWithId, removeHumanInfoById, getInfoHumen, createHuman, changeHumanInfoWithId } = require('../controllers/human')
+const { getInfoHumanWithId, removeHumanInfoById,
+     getInfoHumen, createHuman, changeHumanInfoWithId,
+      getEducationalLevels, getReligions, getGenders, findHumanInfo } = require('../controllers/human')
 const auth = require('../middleware/auth')
-const checkRoleToAddUser = require('../middleware/checkRoleToAddUser')
 const checkRoleToDeclareInfo = require('../middleware/checkRoleToDeclareInfo')
-const checkRoleToViewScopeInfo = require('../middleware/checkRoleToViewScopeInfo')
 const router = require('express').Router()
+
+//find info human by (idCityRef/idDistrictRef/idCommuneRef/idVillageRef managed by logged in user) and name 
+router.get('/search',[auth],findHumanInfo)
+
+router.get('/religions',getReligions)
+
+router.get('/educational-levels',getEducationalLevels)
+
+router.get('/genders',getGenders)
 
 //get infomation of a human {_id}
 router.get('/:id',[auth],getInfoHumanWithId)
@@ -15,6 +24,8 @@ router.delete('/:id',[auth,checkRoleToDeclareInfo],removeHumanInfoById)
 router.post('/',[auth,checkRoleToDeclareInfo],createHuman)
 //edit info of human{id} of family{:idFamily(in req.query)}
 router.put('/:id',[auth,checkRoleToDeclareInfo],changeHumanInfoWithId)
+
+
 
 
 

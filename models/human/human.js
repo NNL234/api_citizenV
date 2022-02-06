@@ -1,5 +1,6 @@
 const Joi = require('joi')
 const mongoose = require('mongoose')
+const { RELIGIONS, GENDERS, EDUCATIONALLEVELS } = require('../../config/dataConfig')
 const Schema = mongoose.Schema
 
 const humanSchema = new Schema({
@@ -22,10 +23,11 @@ const humanSchema = new Schema({
     },
     job: {
         type:String,
-        required:true,
+        default:""
     },
     religion:{
         type:String,
+        enum:RELIGIONS,
         default:"",
     },
     idTemporaryResidenceAddressRef: {
@@ -40,7 +42,7 @@ const humanSchema = new Schema({
     },
     gender: {
         type :String,
-        enum:["male","female","others"],
+        enum:GENDERS,
         required :true,
     },
     hometown :{
@@ -49,6 +51,7 @@ const humanSchema = new Schema({
     },
     educationalLevel :{
         type: String,
+        enum:EDUCATIONALLEVELS,
         required : true,
     },
 })

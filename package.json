@@ -17,6 +17,7 @@
     "express": "^4.17.1",
     "joi": "^17.5.0",
     "jsonwebtoken": "^8.5.1",
-    "mongoose": "^6.1.0"
+    "mongoose": "^6.1.0",
+    "node-cron": "^3.0.0"
   }
 }

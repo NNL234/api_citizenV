@@ -2,7 +2,7 @@ const { isValidObjectId } = require("mongoose");
 const {  getAreaById, getAddressById, getFullAddressOfVillageById, changeInfomationOfAreaWithId } = require("../controllers/address/address");
 const { getFamiliesWithIdArea } = require("../controllers/family");
 const {  getInfoHumansWithIdArea } = require("../controllers/human");
-const { getStatisticsInfoScopeById } = require("../controllers/statistics");
+const { getStatisticsInfoScopeById, getStatisticsInfo, getStatisticsInfoAreas } = require("../controllers/statistics");
 const auth = require("../middleware/auth");
 const checkRoleToAddUser = require("../middleware/checkRoleToAddUser");
 const checkRoleToViewScopeInfo = require("../middleware/checkRoleToViewScopeInfo");
@@ -28,10 +28,17 @@ router.get(['/country/family',
             '/district/family',
             '/commune/family',
             '/village/family'],[auth,checkRoleToViewScopeInfo],getFamiliesWithIdArea)
+//statistics info of area that logged in user manage
+router.get('/statistics',auth,getStatisticsInfo)
+// statistics info areas that logged in user manage and belong to area has id save in req.query
+router.get(['/cities/statistics',
+            '/districts/statistics',
+            '/communes/statistics',
+            '/villages/statistics'],[auth],getStatisticsInfoAreas)
 
-//statistic 
+//statistics
 router.get(['/country/statistics','/city/statistics','/district/statistics','/commune/statistics',
-'/village/statistics'],[auth],getStatisticsInfoScopeById)
+'/village/statistics'],[auth,checkRoleToViewScopeInfo],getStatisticsInfoScopeById)
 
 
 //get all districts belong to city{_id} or communes belong to district{_id} or village belong to{_id}

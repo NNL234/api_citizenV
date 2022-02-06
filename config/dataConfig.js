@@ -1,7 +1,7 @@
-const RELIGIONS =[  "Bà-la-môn","Bahá'í giáo","Bửu Sơn Kỳ Hương",
+const RELIGIONS =[  "","Bà-la-môn","Bahá'í giáo","Bửu Sơn Kỳ Hương",
                     "Cao Đài" ,"Công giáo","Cơ đốc Phục lâm","Hiếu Nghĩa Tà Lơn",
-                    "Hòa Hảo","Hồi giáo","Không","Minh Lý Đạo","Minh Sư Đạo","Mormon",
-                    "Phật giáo","Tin Lành","Tịnh độ cư sĩ Phật hội Việt Nam","Tứ Ân Hiếu Nghĩa"
+                    "Hòa Hảo","Hồi giáo","Thiên chúa giáo","Minh Lý Đạo","Minh Sư Đạo","Mormon",
+                    "Phật giáo","Tin Lành","Tịnh độ cư sĩ Phật hội Việt Nam","Tứ Ân Hiếu Nghĩa",
                     ]
 
 const GENDERS =["male","female","others"]

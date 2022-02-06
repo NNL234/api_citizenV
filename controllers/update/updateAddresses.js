@@ -1,5 +1,6 @@
 const { Address } = require("../../models/address/address")
 const { Scope } = require("../../models/address/scope")
+const { StatisticsData } = require("./updateStaticalInfo")
 
 //sau khi tat ca khai bao thì update address
 const updateAddresses = async (req,res,next)=> {
@@ -20,6 +21,7 @@ const updateAddresses = async (req,res,next)=> {
         const villages = processes[0]
         const existedAddress = processes[1].map(address=> address.idVillageRef)
         const newAddresses=[]
+        const newStatisticsData =[]
          villages.forEach(village=>{
              let isExisted = false
                 //check full address already existed  or not
@@ -40,12 +42,13 @@ const updateAddresses = async (req,res,next)=> {
                                     idVillageRef:village._id,
                                 }
                     newAddresses.push (new Address(address))
+                    newStatisticsData.push(new StatisticsData({areaCode:village.areaCode}))
                 }
      
             })
-        return Address.insertMany(newAddresses)//update in db
-                        .then(result=>res.status(200).send(result))
-                        .catch(err=>res.status(500).send(err))
+        return Promise.all([Address.insertMany(newAddresses),StatisticsData.insertMany(newStatisticsData)])
+                        .then(result=>res.send('success'))
+                        .catch(err=>res.send(err))
     }
     
     module.exports = {

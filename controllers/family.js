@@ -26,6 +26,7 @@ exports.createFamily = async function(req,res,next) {
     const address =[idCountryRef,idCityRef,idDistrictRef,idCommuneRef,idVillageRef]
     
     let isAddressManagedByLoggedInUser = false
+    console.log(req.decodedToken._id)
     //address co phai do nguoi nay quan ly khong
     address.forEach(scope=>{
         if(scope.equals(loggedInUser.idManagedScopeRef))
@@ -69,9 +70,9 @@ exports.editFamily= async (req,res,next)=>{
         })
         if(!isAddressManagedByLoggedInUser)
             return res.status(400).send('address of this family is not managed by you')
-        const {err} = Family.validate(req.body.family)
-        if(err) return res.status(400).send('invalid family')
-        return Family.findOneAndUpdate({_id:req.params.id},(req.body.family),{new:true})
+        const editedFamily = new Family(req.body.family)
+        console.log(editedFamily)
+        return Family.findOneAndUpdate({_id:req.params.id},req.body.family,{new:true})
                     .then(result=> res.status(200).send(result))
                     .catch(err=> console.log(err))
     
@@ -152,6 +153,7 @@ exports.getFamiliesWithIdArea = async (req,res,next)=>{
                     if(!result.length) return res.status(404).send('not found')
                     const data = result.map(family=>{
                         return {
+                            _id: family._id,
                             headOfHouseholdName:family.headOfHouseholdName,
                             householdCode:family.householdCode,
                             address: formatAddress(family.idAddressRef),

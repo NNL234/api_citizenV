@@ -7,18 +7,14 @@ const { User } = require("../models/user/user")
 
 //login
 router.post("/", async (req,res) => {
-    //validate user,password(length,type...)
-    //if(err) do st
-    //if(!err)
-    //find user in db has username === req.body.username
+   
     const user = await User.findOne({username:req.body.username})
                         .populate({path:'idRoleRef',model:'Role'})
                         .populate({path:'idManagedScopeRef',model:'Scope'}) 
                         
     if(!user) 
         return res.status(400).send("Invalid username or password");
-    const checkPassword = req.body.password == user.password
-    //await bcrypt.compare(req.body.password,user.password);    
+    const checkPassword = await bcrypt.compare(req.body.password, user.password)
     if(!checkPassword) 
     return res.status(400).send("Invalid username or password");
     const token = generateAuthToken({
@@ -26,12 +22,14 @@ router.post("/", async (req,res) => {
         username:user.username,
         role : user.idRoleRef.name,
         declarable: user.declarable,
-        idManagedScopeRef:user.idManagedScopeRef._id
+        idManagedScopeRef:user.idRoleRef.name != 'admin'?user.idManagedScopeRef._id:'A1',
+        areaCode:user.idRoleRef.name != 'admin'?user.idManagedScopeRef.areaCode:''
     })
     return res.send({token,
-                    name:user.name,
-                    area:user.idManagedScopeRef? user.idManagedScopeRef.name:'A1',
-                    idArea: user.idManagedScopeRef?user.idManagedScopeRef._id:'A1'
+                    area:user.idManagedScopeRef? user.idManagedScopeRef.name:'',
+                    idArea: user.idRoleRef.name != 'admin'?user.idManagedScopeRef._id:'',
+                    idUser:user._id,
+                    areaCode:user.idRoleRef.name != 'admin'?user.idManagedScopeRef.areaCode:''
                 });
 })
 

@@ -149,44 +149,37 @@ const ObjectId = require('mongoose').Types.ObjectId
     ])
 
 
-exports.formatData = function(data,KEYSLIST,SECONDKEYLIST) {
+exports.formatData = function(data,KEYSLIST,SECONDKEYLIST=[]) {
         const formattedData =[]
-        const keyData = data.map(unit=> Object.values(unit)[0])
-        KEYSLIST.forEach(key=>{
-            const unit ={}
-            unit[`${Object.keys(data[0])[0]}`] = key
-            if(!keyData.includes(key)){
-                if(SECONDKEYLIST){
-                    SECONDKEYLIST.forEach((secondKey,index)=>{
-                        // console.log(Object.keys(data[0])[1],secondKey)
-                        unit.count =0
-                        unit[`${Object.keys(data[0])[1]}`] =secondKey
-                        formattedData.push(unit)
+        if(!data.length) return []
+        const keyData =  Object.keys(data[0])
+        KEYSLIST.forEach(firstKey=>{    
+               if(SECONDKEYLIST.length){
+                 SECONDKEYLIST.forEach(secondKey=>{
+                    let newUnit = {}
+                    newUnit[keyData[0]] = firstKey
+                    newUnit[keyData[1]] = secondKey
+                    newUnit['count'] = 0
+                    data.forEach(unit=>{
+                      if(unit[keyData[0]]== firstKey && unit[keyData[1]] == secondKey){
+                          newUnit.count = unit.count
+                      }
                     })
-                }
-                else {
-                    unit.count = 0
-                    formattedData.push(unit)
-                }
-            }
-            else {
-                if(SECONDKEYLIST){
-                    SECONDKEYLIST.forEach((secondKey,index)=>{
-                        if(!keyData.includes(secondKey)) {
-                            unit.count =0
-                            unit[`${Object.keys(data[0])[1]}`] =secondKey
-                            formattedData.push(unit)
-                        }
-                    })
-                }
-                else {
-                    unit.count = 0
-                    formattedData.push(unit)
-                }
-
-            }
-        })
-        formattedData.push(...data)
-
+                    formattedData.push(newUnit)
+                })
+                
+               }
+               else {
+                let newUnit = {}
+                newUnit[keyData[0]] = firstKey
+                newUnit['count'] = 0
+                   data.forEach(unit=>{
+                       if(unit[keyData[0]]== firstKey)
+                            newUnit.count = unit.count
+                   })
+                   formattedData.push(newUnit)
+               }
+            })
+    
         return formattedData
     }

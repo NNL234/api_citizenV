@@ -1,9 +1,12 @@
 const mongoose = require("mongoose");
 const config = require("config");
 
-const mongooseOpts = {
-    useNewUrlParser:true,
-    useUnifiedTopology:true,
+const mongooseOpts = {    
+    useNewUrlParser: true,
+    autoReconnect: true,
+    reconnectTries: Number.MAX_VALUE,
+    reconnectInterval: 1000,
+    poolSize: 10,
 };
 
 module.exports = function () {

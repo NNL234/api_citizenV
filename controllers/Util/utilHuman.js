@@ -1,10 +1,11 @@
 const { formatAddress } = require("./utilAddress")
 
 exports.formatHumanInfo = (human) => {
+    const birth = new Date(human.birth)
     const data ={
-        // name:human.name,
+        name:human.name,
         cardId:human.cardId,
-        birth:human.birth,
+        birth:`${birth.getDate()}/${birth.getMonth()+1}/${birth.getFullYear()}`,
         job:human.job,
         religion:human.religion,
         gender:human.gender,
